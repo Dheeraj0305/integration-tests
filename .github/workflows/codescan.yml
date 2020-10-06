@@ -1,27 +1,48 @@
-name: CodeScan
+name: CI
 
-on: [push]
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+      - master
+      - feature/**
 
 jobs:
-    CodeScan:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v2
-            - name: Cache files
-              uses: actions/cache@v2
-              with:
-                  path: |
-                      ~/.sonar
-                  key: ${{ runner.os }}-sonar
-                  restore-keys: ${{ runner.os }}-sonar
-            - name: Run Analysis
-              uses: codescan-io/codescan-scanner-action@master
-              with:
-                  login: ${{ secrets.CODESCAN_TOKEN2 }}
-                  organization: 442
-                  projectKey: sarif-test
-            - name: Upload SARIF file
-              uses: github/codeql-action/upload-sarif@v1
-              with:
-                  sarif_file: codescan.sarif
+  build:
+    runs-on: ubuntu-latest
+    env:    # The variables to set for your project and organization
+      codescan_org: 5f348e5e0af2540037851a6d
+      codescan_project_key: Dheeraj0305-SumItUp
+      codescan_token: ${{ secrets.git_code_scan }}
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1.1.0
+    - name: CodeScan Scanner
+    -uses: codescan-io/codescan-scanner-action@1.2
+     with:
+       organization: 5f348e5e0af2540037851a6d
+       projectKey: Dheeraj0305-SumItUp
+       login: ${{ secrets.git_code_scan }}
+    # CodeScanCloud endpoint for your project
+       codeScanUrl: # optional, default is https://app.codescan.io/
+    # This task will poll CodeScanCloud until the analysis is completed, or until the timeout is reached
+       pollingTimeoutSec: # optional, default is 900
+    # The flag to indicate that SARIF file should be generated
+       generateSarifFile: # optional, default is true
+    # Additional arguments to the sonarcloud scanner
+       args: # optional
+    - name: Run Codescan On Push
+      if: github.event_name == 'push'
+      run: |
+        sfdx codescan:run --token=$codescan_token --projectkey=$codescan_project_key --organization=$codescan_org -Dsonar.branch.name=$branch_name
+    
+    - name: Run Codescan On PR
+      if: github.event_name == 'pull_request'
+      env:  
+        branch_name: ${{ github.ref }}
+        target: ${{github.base_ref}}
+        branch_type: SHORT 
+      run: |
+        sfdx codescan:run --token=$codescan_token --projectkey=$codescan_project_key --organization=$codescan_org -Dsonar.branch.name=$branch_name -Dsonar.branch.target=$target -Dsonar.branch.type=$branch_type
