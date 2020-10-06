@@ -20,19 +20,19 @@ jobs:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1.1.0
     - name: CodeScan Scanner
-    -uses: codescan-io/codescan-scanner-action@1.2
-     with:
-       organization: 5f348e5e0af2540037851a6d
-       projectKey: Dheeraj0305-SumItUp
-       login: ${{ secrets.git_code_scan }}
+    - uses: codescan-io/codescan-scanner-action@1.2
+      with:
+        organization: 5f348e5e0af2540037851a6d
+        projectKey: Dheeraj0305-SumItUp
+        login: ${{ secrets.git_code_scan }}
     # CodeScanCloud endpoint for your project
-       codeScanUrl: # optional, default is https://app.codescan.io/
+        codeScanUrl: # optional, default is https://app.codescan.io/
     # This task will poll CodeScanCloud until the analysis is completed, or until the timeout is reached
-       pollingTimeoutSec: # optional, default is 900
+        pollingTimeoutSec: # optional, default is 900
     # The flag to indicate that SARIF file should be generated
-       generateSarifFile: # optional, default is true
+        generateSarifFile: # optional, default is true
     # Additional arguments to the sonarcloud scanner
-       args: # optional
+        args: # optional
     - name: Run Codescan On Push
       if: github.event_name == 'push'
       run: |
