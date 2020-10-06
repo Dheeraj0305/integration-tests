@@ -1,0 +1,27 @@
+name: CodeScan
+
+on: [push]
+
+jobs:
+    CodeScan:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+            - name: Cache files
+              uses: actions/cache@v2
+              with:
+                  path: |
+                      ~/.sonar
+                  key: ${{ runner.os }}-sonar
+                  restore-keys: ${{ runner.os }}-sonar
+            - name: Run Analysis
+              uses: codescan-io/codescan-scanner-action@master
+              with:
+                  login: ${{ secrets.CODESCAN_TOKEN2 }}
+                  organization: 442
+                  projectKey: sarif-test
+            - name: Upload SARIF file
+              uses: github/codeql-action/upload-sarif@v1
+              with:
+                  sarif_file: codescan.sarif
